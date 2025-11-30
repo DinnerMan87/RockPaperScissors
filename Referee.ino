@@ -28,6 +28,9 @@ String winner = "noWinner";
 String playerSelection = "?";
 String computerSelection = "?";
 
+int playerScore = 0;
+int computerScore = 0;
+
 char* cString;
 
 // SETUP
@@ -225,4 +228,8 @@ void updatePrevMoves(String move) {
 
   // shift left, append new move
   prevMoves = prevMoves.substring(1) + c;
+}
+
+void prev(String s) {
+  prevMoves += s[0];
 }

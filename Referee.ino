@@ -27,6 +27,9 @@ String winner = "noWinner"; //data sent from Referee of who the winner is
 String playerSelection = "?";
 String computerSelection = "?";
 
+int playerScore = 0;
+int computerScore = 0;
+
 char* cString;
 
 void setup() {

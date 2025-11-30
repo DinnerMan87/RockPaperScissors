@@ -38,14 +38,14 @@ void loop() {
 
   if (Serial.available() > 0) {
     String read = Serial.readStringUntil('\n');
-    if (read == "2") {
+    if (read == "stage2") {
       stage = "2";
       Serial.println("Stage 2");
       
       win = false;
       noTone(buzzer);
 
-    } else if (read == "3") {
+    } else if (read == "stage3") {
       stage = "3";
       Serial.print("Stage 3: sending player choice - ");
       Serial.write(choice.c_str());

@@ -30,7 +30,7 @@ const int pMeter = A0, buzzer = 8;
 
 //MISC
 String choice = "none\n";
-const String stage = "?";
+String stage = "?";
 bool win = false;
 int winCycle = 0; //It stops the rgb and buzzer after a certain number
 
@@ -52,6 +52,8 @@ void setup() {
 
   Serial.begin(9600);
   MASTER.begin(9600);
+
+  Serial.print("\n\n\nACTIVE\n");
 }
 
 int oldMill = 0;
@@ -61,7 +63,8 @@ void loop() {
   if (MASTER.available() > 0) {
     String read = MASTER.readStringUntil('\n');
     Serial.println("PING: " + read);
-    if (read == "stage2") {
+
+     if (read == "stage2") {
       stage = "2";
       Serial.println("Stage 2");
       
@@ -70,12 +73,34 @@ void loop() {
 
     } else if (read == "stage3") {
       stage = "3";
-      Serial.print("Stage 3: sending player choice - ");
-      MASTER.write(choice.c_str());
+      //Serial.print("Stage 3: sending player choice - ");
+      //MASTER.write(choice.c_str());
+        win = false;
+        noTone(buzzer);
+        winCycle = 0;
+        analogWrite(RLED, 0);
+        analogWrite(GLED, 0);
+        analogWrite(BLED, 0);
+        digitalWrite(rockLED, LOW);
+        digitalWrite(paperLED, LOW);
+        digitalWrite(scissorsLED, LOW);
+      
     
     } else if (read == "win"){
       win = true;
       Serial.println("WON");
+    }
+    else if (read == "lose"){
+        stage = "0";
+        win = false;
+        noTone(buzzer);
+        winCycle = 0;
+        analogWrite(RLED, 0);
+        analogWrite(GLED, 0);
+        analogWrite(BLED, 0);
+        digitalWrite(rockLED, LOW);
+        digitalWrite(paperLED, LOW);
+        digitalWrite(scissorsLED, LOW);
     }
   }
 
@@ -87,18 +112,24 @@ void loop() {
 
       digitalWrite(paperLED, LOW);
       digitalWrite(scissorsLED, LOW);
+      
+      MASTER.print("rock\n");
     }else if (digitalRead(paperButton) == 1){
       choice = "paper\n";
       digitalWrite(paperLED, HIGH);
 
       digitalWrite(rockLED, LOW);
       digitalWrite(scissorsLED, LOW);
+
+      MASTER.write("paper\n");
     }else if (digitalRead(scissorsButton) == 1){
       choice = "scissors\n";
       digitalWrite(scissorsLED, HIGH);
 
       digitalWrite(rockLED, LOW);
       digitalWrite(paperLED, LOW);
+
+      MASTER.write("scissors\n");
     } 
 
   }
@@ -120,6 +151,7 @@ void loop() {
         noTone(buzzer);
 
       if (winCycle >= 20){
+        stage = "0";
         win = false;
         noTone(buzzer);
         winCycle = 0;

@@ -15,9 +15,12 @@
   interconnected embedded systems can work together to perform a unified task efficiently and reliably.
 */
 
+#include <SoftwareSerial.h>
+SoftwareSerial MASTER(12,11);
+
 //LEDS
 const int rockLED = 5, paperLED = 6, scissorsLED = 7;
-const int RLED = 9, GLED = 10, BLED = 11;
+const int RLED = 9, GLED = 10, BLED = A1;
 
 //Buttons
 const int rockButton = 2, paperButton = 3, scissorsButton = 4;
@@ -48,14 +51,16 @@ void setup() {
   pinMode(buzzer, OUTPUT);
 
   Serial.begin(9600);
+  MASTER.begin(9600);
 }
 
 int oldMill = 0;
 void loop() {
   int newMill = millis();
 
-  if (Serial.available() > 0) {
-    String read = Serial.readStringUntil('\n');
+  if (MASTER.available() > 0) {
+    String read = MASTER.readStringUntil('\n');
+    Serial.println(read);
     if (read == "stage2") {
       stage = "2";
       Serial.println("Stage 2");
@@ -66,7 +71,7 @@ void loop() {
     } else if (read == "stage3") {
       stage = "3";
       Serial.print("Stage 3: sending player choice - ");
-      Serial.write(choice.c_str());
+      MASTER.write(choice.c_str());
     } else if (read == "win"){
       win = true;
       Serial.println("WON");
@@ -94,6 +99,7 @@ void loop() {
       digitalWrite(rockLED, LOW);
       digitalWrite(paperLED, LOW);
     } 
+
   }
 
   if (newMill - oldMill > 100){
@@ -106,7 +112,7 @@ void loop() {
       analogWrite(BLED, random(255));
 
       int a = analogRead(pMeter);
-      //Serial.println(a);
+
       if (a > 50)
         tone(buzzer, a);
       else
@@ -126,4 +132,3 @@ void loop() {
     }
   }
 }
-

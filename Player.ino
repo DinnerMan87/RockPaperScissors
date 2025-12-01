@@ -60,7 +60,7 @@ void loop() {
 
   if (MASTER.available() > 0) {
     String read = MASTER.readStringUntil('\n');
-    Serial.println(read);
+    Serial.println("PING: " + read);
     if (read == "stage2") {
       stage = "2";
       Serial.println("Stage 2");
@@ -72,6 +72,7 @@ void loop() {
       stage = "3";
       Serial.print("Stage 3: sending player choice - ");
       MASTER.write(choice.c_str());
+    
     } else if (read == "win"){
       win = true;
       Serial.println("WON");

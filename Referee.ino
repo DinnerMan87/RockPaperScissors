@@ -44,18 +44,11 @@ String winner = "noWinner";
 String playerSelection = "?";
 String computerSelection = "?";
 
-<<<<<<< HEAD
 // Non-blocking timers
 unsigned long stageTimer = 0;
 unsigned long stageTimeout = 0;
 
 
-=======
-int playerScore = 0;
-int computerScore = 0;
-
-char* cString;
->>>>>>> refs/remotes/origin/aydev
 
 void setup() {
   Serial.begin(9600);      // Player Arduino
@@ -72,6 +65,7 @@ void setup() {
 void loop() {
 
   // STAGE 0 — WAIT FOR START BUTTON
+  
   if (stage == "stage0") {
 
     lcd.setCursor(0, 0);
@@ -102,7 +96,9 @@ void loop() {
 
 
 
+
   // STAGE 1 — COMPUTER SELECTS MODE
+    
   else if (stage == "stage1") {
 
     if (compSerial.available()) {
@@ -125,11 +121,8 @@ void loop() {
     }
   }
 
-
-
-  // =====================================================
-  //  STAGE 2 — WAIT FOR PLAYER + COMPUTER MOVES
-  // =====================================================
+  // STAGE 2 — WAIT FOR PLAYER + COMPUTER MOVES
+    
   else if (stage == "stage2") {
 
     // PLAYER MOVE
@@ -177,11 +170,8 @@ void loop() {
     }
   }
 
-
-
-  // =====================================================
   //  STAGE 3 — DISPLAY WINNER (NON-BLOCKING)
-  // =====================================================
+    
   else if (stage == "stage3") {
 
     if (millis() - stageTimer >= 2500) { // 2.5 seconds
@@ -195,11 +185,8 @@ void loop() {
     }
   }
 
-
-
-  // =====================================================
-  //  STAGE 4 — RESET GAME (NON-BLOCKING)
-  // =====================================================
+  // STAGE 4 — RESET GAME (NON-BLOCKING)
+    
   else if (stage == "stage4") {
 
     if (millis() - stageTimer >= 1500) { // 1.5 seconds
@@ -217,11 +204,7 @@ void loop() {
   }
 }
 
-
-
-// =====================================================
-//  HELPER FUNCTIONS
-// =====================================================
+// HELPER FUNCTIONS
 
 String evaluateWinner() {
 
@@ -246,6 +229,3 @@ void updatePrevMoves(String move) {
   prevMoves = prevMoves.substring(1) + code;
 }
 
-void prev(String s) {
-  prevMoves += s[0];
-}

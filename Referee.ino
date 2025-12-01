@@ -136,7 +136,7 @@ void loop() {
   // ============================================================
   else if (stage == "startingMessage") {
 
-    if (millis() - stageTimer >= 1000) {
+    if (millis() - stageTimer >= 5000) {
 
       stage = "stage1";
       lcd.clear();
@@ -171,65 +171,67 @@ void loop() {
         Serial.println("DEBUG: Moving to Stage 2");
 
         // Give computer previous moves pattern
-        compSerial.print("stage2," + prevMoves + "\n");
+        compSerial.print("stage2\n");
 
         // Tell player to show selections
-        playerSerial.print("start\n");
+        playerSerial.print("stage2\n");
       }
     }
   }
 
-  // ============================================================
-  //  STAGE 2 — WAIT FOR BOTH MOVES
-  // ============================================================
-  else if (stage == "stage2") {
+// ============================================================
+//  STAGE 2 — WAIT FOR BOTH MOVES
+// ============================================================
+else if (stage == "stage2") {
 
     // PLAYER MOVE
+    playerSerial.listen();
     if (playerSerial.available()) {
-      String msg = playerSerial.readStringUntil('\n');
-      msg.trim();
-      Serial.print("DEBUG: Player sent -> ");
-      Serial.println(msg);
+        String msg = playerSerial.readStringUntil('\n');
+        msg.trim();
 
-      if (msg == "rock" || msg == "paper" || msg == "scissors") {
-        playerSelection = msg;
-        lcd.setCursor(0, 1);
-        lcd.print("P:" + playerSelection + "   ");
-      }
+        Serial.print("DEBUG: Player sent -> ");
+        Serial.println(msg);
+
+        if (msg == "rock" || msg == "paper" || msg == "scissors") {
+            playerSelection = msg;
+            lcd.setCursor(0, 1);
+            lcd.print("P:" + playerSelection + "   ");
+        }
     }
 
-    // COMPUTER MOVE
-    if (compSerial.available()) {
-      String msg = compSerial.readStringUntil('\n');
-      msg.trim();
-      Serial.print("DEBUG: Computer sent -> ");
-      Serial.println(msg);
+    // COMPUTER MOVE (Randomly chosen by Referee)
+    if (computerSelection == "?") { // only generate once
+        int r = random(1, 4); // 1 = rock, 2 = paper, 3 = scissors
+        if (r == 1) computerSelection = "rock";
+        else if (r == 2) computerSelection = "paper";
+        else computerSelection = "scissors";
 
-      if (msg == "rock" || msg == "paper" || msg == "scissors") {
-        computerSelection = msg;
         lcd.setCursor(8, 1);
         lcd.print("C:" + computerSelection + "   ");
-      }
+        Serial.print("DEBUG: Computer chose -> ");
+        Serial.println(computerSelection);
     }
 
     // If both moves received → determine winner
     if (playerSelection != "?" && computerSelection != "?") {
 
-      winner = evaluateWinner();
-      updatePrevMoves(playerSelection);
+        winner = evaluateWinner();
+        updatePrevMoves(playerSelection);
 
-      stage = "stage3";
-      stageTimer = millis();
+        stage = "stage3";
+        stageTimer = millis();
 
-      lcd.clear();
-      lcd.print("Winner: ");
-      lcd.print(winner);
+        lcd.clear();
+        lcd.print("Winner: ");
+        lcd.print(winner);
 
-      // notify both sides
-      compSerial.print("stage3," + winner + "\n");
-      playerSerial.print("stop\n");
+        // notify player only (no need to notify computer since it's internal)
+        playerSerial.print("stage3\n");
+        compSerial.print("stage3\n");
     }
-  }
+}
+
 
   // ============================================================
   //  STAGE 3 — SHOW WINNER FOR 2.5 SEC
@@ -278,11 +280,13 @@ String evaluateWinner() {
   if (playerSelection == computerSelection)
     return "tie";
 
-  if (playerSelection == "rock"     && computerSelection == "scissors") return "player";
-  if (playerSelection == "paper"    && computerSelection == "rock")     return "player";
-  if (playerSelection == "scissors" && computerSelection == "paper")    return "player";
+  if (playerSelection == "rock"     && computerSelection == "scissors") return "win\n";
+  if (playerSelection == "paper"    && computerSelection == "rock")     return "win\n";
+  if (playerSelection == "scissors" && computerSelection == "paper")    return "win\n";
 
-  return "computer";
+  playerSerial.print("lose\n");
+  return "Computer\n";
+  
 }
 
 void updatePrevMoves(String move) {

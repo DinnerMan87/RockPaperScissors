@@ -6,29 +6,4 @@ Stage 3: The referee announces the winner and a buzzer makes a sound
 (Repeat stages 2 and 3 for 5 games)
 Stage 4: Whoever won the best of 5 will be announced on the lcd screen and an rgb led will put on a show and the buzzer will go off
 
-Note: 0=nothings played, 1=rock, 2=paper, 3=scissors
-
-Use the SoftwareSerial library to connect all our arduinos together. Example of how to use it: 
-#include <SoftwareSerial.h>
-
-// Define RX and TX pins
-const byte rxPin = 2;
-const byte txPin = 3;
-
-// Create a SoftwareSerial object
-SoftwareSerial mySerial(rxPin, txPin);
-
-void setup() {
-  // Initialize the software serial port at 9600 baud
-  mySerial.begin(9600);
-  mySerial.println("SoftwareSerial Initialized");
-}
-
-void loop() {
-  // Check if data is available to read
-  if (mySerial.available() > 0) {
-    char received = mySerial.read(); // Read incoming data
-    mySerial.print("Received: ");
-    mySerial.println(received);
-  }
-}
+Note: 0=nothings played, r=rock, p=paper, s=scissors

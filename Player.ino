@@ -7,18 +7,12 @@ const int rockButton = 2, paperButton = 3, scissorsButton = 4;
 
 //Other Devices
 const int pMeter = A0, buzzer = 8;
-//MISC
-enum Choice{
-  ROCK = 'rock',
-  PAPER = 'paper',
-  SCISSORS = 'scissors',
-  NONE = 'none'
-};
 
-Choice choice = Choice::NONE;
-bool choiceMade = false;
-bool gameStarted = false;
-int clientNumber = 1;
+//MISC
+String choice = "none\n";
+const String stage = "?";
+bool win = false;
+int winCycle = 0; //It stops the rgb and buzzer after a certain number
 
 void setup() {
   pinMode(rockLED,     OUTPUT);
@@ -39,73 +33,83 @@ void setup() {
   Serial.begin(9600);
 }
 
-
-
+int oldMill = 0;
 void loop() {
-  
+  int newMill = millis();
+
   if (Serial.available() > 0) {
     String read = Serial.readStringUntil('\n');
-    if (read == "start"){
-    	gameStarted = true;
-    }
-    if (read == "stop"){
-    	gameStarted = false;
-      	String send = String(clientNumber.c_str()) + ":" + choice;
-      	//Serial.write(send);
-    	
+    if (read == "stage2") {
+      stage = "2";
+      Serial.println("Stage 2");
+      
+      win = false;
+      noTone(buzzer);
+
+    } else if (read == "stage3") {
+      stage = "3";
+      Serial.print("Stage 3: sending player choice - ");
+      Serial.write(choice.c_str());
+    } else if (read == "win"){
+      win = true;
+      Serial.println("WON");
     }
   }
-  
-  if (gameStarted){
-      if (digitalRead(rockButton) == 1){
-        choice = Choice::ROCK;
-        choiceMade = true;
-       	digitalWrite(rockLED, HIGH);
 
-        digitalWrite(paperLED, LOW);
-      	digitalWrite(scissorsLED, LOW);
-      }
-      else if (digitalRead(paperButton) == 1){
-        choice = Choice::PAPER;
-        choiceMade = true;
-        digitalWrite(paperLED, HIGH);
-        
-        digitalWrite(rockLED, LOW);
-      	digitalWrite(scissorsLED, LOW);
-      }
-      else if (digitalRead(scissorsButton) == 1){
-        choice = Choice::SCISSORS;
-        choiceMade = true;
-        digitalWrite(scissorsLED, HIGH);
-        
-        digitalWrite(rockLED, LOW);
-      	digitalWrite(paperLED, LOW);
-      }
+  if (stage == "2"){
+    
+    if (digitalRead(rockButton) == 1){
+      choice = "rock\n";
+      digitalWrite(rockLED, HIGH);
+
+      digitalWrite(paperLED, LOW);
+      digitalWrite(scissorsLED, LOW);
+    }else if (digitalRead(paperButton) == 1){
+      choice = "paper\n";
+      digitalWrite(paperLED, HIGH);
+
+      digitalWrite(rockLED, LOW);
+      digitalWrite(scissorsLED, LOW);
+    }else if (digitalRead(scissorsButton) == 1){
+      choice = "scissors\n";
+      digitalWrite(scissorsLED, HIGH);
+
+      digitalWrite(rockLED, LOW);
+      digitalWrite(paperLED, LOW);
+    } 
+
+
+  } else if (stage == "3"){
+    digitalWrite(rockLED, LOW);
+    digitalWrite(paperLED, LOW);
+    digitalWrite(scissorsLED, LOW);
   }
 
-  /*
-  digitalWrite(rockLED, HIGH);
-  digitalWrite(paperLED, HIGH);
-  digitalWrite(scissorsLED, HIGH);
+  if (newMill - oldMill > 100){
+    oldMill = newMill;
+    if (win){
+      winCycle++;
 
-  analogWrite(RLED, 215);
-  analogWrite(GLED, 105);
-  analogWrite(BLED, 55);
+      analogWrite(RLED, random(255));
+      analogWrite(GLED, random(255));
+      analogWrite(BLED, random(255));
 
-  //tone(buzzer, 1000);
+      int a = analogRead(pMeter);
+      //Serial.println(a);
+      if (a > 50)
+        tone(buzzer, a);
+      else
+        noTone(buzzer);
 
-  Serial.print("\n\n\n\n\n\npMeter:");
-  Serial.println(analogRead(pMeter));
-
-  Serial.print("rockButton:");
-  Serial.println(digitalRead(rockButton));
-
-  Serial.print("paperButton:");
-  Serial.println(digitalRead(paperButton));
-
-  Serial.print("scissorsButton:");
-  Serial.println(digitalRead(scissorsButton));
-
-  delay(1000);
-  */
+      if (winCycle >= 20){
+        win = false;
+        noTone(buzzer);
+        winCycle = 0;
+        analogWrite(RLED, 0);
+        analogWrite(GLED, 0);
+        analogWrite(BLED, 0);
+      }
+    }
+  }
 }
+

@@ -28,11 +28,18 @@ String winner = "noWinner";
 String playerSelection = "?";
 String computerSelection = "?";
 
+<<<<<<< HEAD
 // Non-blocking timers
 unsigned long stageTimer = 0;
 unsigned long stageTimeout = 0;
 
 
+=======
+int playerScore = 0;
+int computerScore = 0;
+
+char* cString;
+>>>>>>> refs/remotes/origin/aydev
 
 void setup() {
   Serial.begin(9600);      // Player Arduino
@@ -221,4 +228,8 @@ void updatePrevMoves(String move) {
   if (move == "scissors") code = 's';
 
   prevMoves = prevMoves.substring(1) + code;
+}
+
+void prev(String s) {
+  prevMoves += s[0];
 }

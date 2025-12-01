@@ -189,7 +189,7 @@ void loop() {
       stage = Serial.readStringUntil('\n');
       winner = Serial.readStringUntil('\n');
     }
-    if (winner == "computer") {
+    if (winner == "win") {
       lightshow();
     }
   } else if (stage == "stage4") {
@@ -200,7 +200,7 @@ void loop() {
       stage = Serial.readStringUntil('\n');
       winner = Serial.readStringUntil('\n');
     }
-    if (winner = "computer") {
+    if (winner = "win") {
       lightshow();
       tone(buzzerPin, hz);
     }
